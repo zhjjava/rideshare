@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE urlrewrite
+		PUBLIC "-//tuckey.org//DTD UrlRewrite 3.0//EN"
+		"http://tuckey.org/res/dtds/urlrewrite3.0.dtd">
+<urlrewrite>
+	<rule>
+		<from>^/([a-zA-Z0-9]+)/$</from>
+		<to type="redirect">%{context-path}/preLoginAction.action?SN=$1</to>
+	</rule>
+</urlrewrite>
+

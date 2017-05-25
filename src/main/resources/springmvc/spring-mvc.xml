@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xmlns:security="http://www.springframework.org/schema/security"
+	xsi:schemaLocation="http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-4.0.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+		http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.0.xsd">
+		
+	<security:global-method-security secured-annotations="enabled" pre-post-annotations="enabled">
+     	<security:expression-handler ref="methodExpressionHandler"/> 
+ 	</security:global-method-security>
+    
+    <mvc:annotation-driven validator="validator"/>
+	<!-- @Controller -->
+	<context:component-scan base-package="edu.mum.rideshare" use-default-filters="false">
+		<context:include-filter type="annotation" expression="org.springframework.stereotype.Controller"/>
+		<context:include-filter type="annotation" expression="org.springframework.web.bind.annotation.ControllerAdvice"/>
+	</context:component-scan>
+	<mvc:annotation-driven>
+		<mvc:message-converters register-defaults="true">
+			<bean class="org.springframework.http.converter.StringHttpMessageConverter">
+		    	<constructor-arg value="UTF-8" />
+			</bean>
+			<bean class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter">
+                <property name="prettyPrint" value="true"/>
+            </bean>			
+  		</mvc:message-converters>
+	</mvc:annotation-driven>
+    <bean id="messageSource" class="org.springframework.context.support.ResourceBundleMessageSource">    
+	    <property name="basenames">
+	      <list>
+	        <value>i18n.AppCommonMsg</value>
+	        <value>i18n.AppErrorMsg</value>
+	        <value>i18n.AppBizMsg</value>
+	      </list>
+	    </property>    
+    </bean>
+	<bean id="messageAccessor"   
+	         class="org.springframework.context.support.MessageSourceAccessor">
+	             <constructor-arg  ref="messageSource"/>
+	</bean>     
+	<bean id="validator" class="org.springframework.validation.beanvalidation.LocalValidatorFactoryBean">
+	          <property name="validationMessageSource" ref="messageSource" />
+	</bean>
+    
+	<mvc:interceptors>
+	
+        <!-- 		
+            <bean id="localeChangeInterceptor"
+		        class="org.springframework.web.servlet.i18n.LocaleChangeInterceptor">
+		    <property name="paramName" value="siteLanguage"/>
+		</bean> -->
+	    <mvc:interceptor>
+	        <mvc:mapping path="/**/*.do"/>
+	        <bean class="edu.mum.rideshare.interceptor.RequestDebugInterceptor">
+	        	<property name="enabled" value="true"/>
+	        </bean>
+	    </mvc:interceptor>
+	    <mvc:interceptor>
+	        <mvc:mapping path="/**/*.do"/>
+	        <mvc:exclude-mapping path="/error/**"/>
+	        <mvc:exclude-mapping path="/layout/**"/>	        
+	        <bean class="edu.mum.rideshare.interceptor.AccessLogInterceptor">
+	        	<property name="enabled" value="false"/>
+	        </bean>
+	    </mvc:interceptor>		    
+ 	   <!--  <mvc:interceptor>
+	        <mvc:mapping path="/**/*.do"/>
+	        <mvc:exclude-mapping path="/login.do"/>
+	        <mvc:exclude-mapping path="/error/**"/>
+	        <mvc:exclude-mapping path="/layout/**"/>
+	        <mvc:exclude-mapping path="/ajax/**"/>
+	        
+	        <mvc:exclude-mapping path="/signup.do"/>
+	        <mvc:exclude-mapping path="/resetpassword/**"/>
+	        
+	        <bean class="edu.mum.rideshare.interceptor.AuthorizationInterceptor" />
+	    </mvc:interceptor> -->
+	</mvc:interceptors>    
+	<bean id="excelViewResolver" class="org.springframework.web.servlet.view.XmlViewResolver">
+	   <property name="location">
+	        <value>classpath:springmvc/spring-excel-views.xml</value>
+	   </property>
+	   <property name="order" value="1"/>
+	</bean>    
+	<!-- Define the location of jsp files  --> 
+	<bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+		<property name="prefix" value="/WEB-INF/jsp/"/>
+		<property name="suffix" value=".jsp"/>
+		 <property name="order" value="999"/>
+	</bean>
+    
+    <bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+        <property name="maxUploadSize" value="1046666000"/>
+    </bean>
+		
+	<mvc:default-servlet-handler/>
+	
+	<mvc:view-controller path="test2.do" view-name="demo/directAccessJsp"/>
+	<mvc:view-controller path="test3.do" view-name="redirect:/LoginAction.do"/>	
+	<mvc:view-controller path="/error/403.do" view-name="errors/403"/>
+
+	<mvc:view-controller path="/index.do" view-name="index"/>
+
+	<bean class="org.springframework.web.servlet.handler.SimpleMappingExceptionResolver">  
+		<property name="exceptionMappings">  
+			<props>  
+				<prop key="java.lang.Throwable">error/500</prop>
+            </props>  
+		</property>  
+    </bean>
+</beans>

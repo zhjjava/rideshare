@@ -1,0 +1,15 @@
+      <div class="jumbotron">
+		<ul class="nav nav-pills">
+		  <li ng-class="isShowingOffer"><a href="" ng-click="queryRidePost(0)">Offering</a></li>
+		  <li ng-class="isShowingAsk"><a href="" ng-click="queryRidePost(1)">Asking</a></li>
+		</ul> 
+		<ul class="pager">
+		   {{pageNumber}}/{{totalPages}} <li><a href="" ng-click="prePage()"  ng-if="hasPrePage">Previous</a></li>
+		    <li><a href="" ng-click="nextPage()" ng-if="hasNextPage">Next</a></li>
+		</ul>
+		<div class="panel panel-default" ng-repeat="row in currentpage.data">
+		  <div class="panel-body">{{row.notes}}</div>
+		  <div class="panel-footer">{{row.sysUser.firstName}} {{row.sysUser.lastName}} added at {{row.createTime | date:"medium"}}</div>
+		</div>        
+      </div>
+      
